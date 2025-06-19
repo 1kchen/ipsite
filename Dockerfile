@@ -9,7 +9,7 @@ COPY --from=downloader /GeoLite2-ASN.mmdb /opt/echoip/GeoLite2-ASN.mmdb
 COPY --from=downloader /GeoLite2-City.mmdb /opt/echoip/GeoLite2-City.mmdb
 COPY --from=downloader /GeoLite2-Country.mmdb /opt/echoip/GeoLite2-Country.mmdb
 COPY html /opt/echoip/html
-WORKDIR /opt/echoip
+# WORKDIR /opt/echoip
 # ENTRYPOINT ["/opt/echoip/echoip"]
 # CMD ['-H','CF-Connecting-IP','-H','X-Forwarded-For','-a','GeoLite2-ASN.mmdb','-c','GeoLite2-City.mmdb','-f','GeoLite2-Country.mmdb']
 ENTRYPOINT ["/bin/bash"]
