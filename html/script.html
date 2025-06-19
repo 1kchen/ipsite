@@ -1,0 +1,125 @@
+<script lang="text/javascript">
+  let host = "{{ .Host }}";
+  let jsonObj = "{{ .JSON }}";
+  let data = JSON.parse(jsonObj);
+  let tool = "curl";
+  let commandBox, widgetBox, compositePath, commandStr;
+  let path
+  let ipQuery, portQuery
+  let ipCheckBox, portCheckBox, portInput
+  let ip = ''
+  let lang = navigator.language.startsWith('zh') ? 'zh' : 'en';
+  let tAll = JSON.parse(`{{ .TAllJSON }}`);
+  let t = tAll[lang] || tAll['en'];
+
+  window.onload = (event) => {
+     commandBox = document.getElementById('command');
+     widgetBox = document.getElementById('output');
+     ipCheckBox = document.getElementById('ipCheckBox')
+     portCheckBox = document.getElementById('portCheckBox')
+     portInput = document.getElementById('portInput')
+     reset()
+     setcommdStr()
+     changeInput("ip")
+     setLangText();
+  }
+
+  function reset() {
+    path = '';
+    ipQuery = '';
+    portQuery = '';
+  }
+
+  function setcommdStr() {
+    compositePath = `${path}${portQuery}${ipQuery}`;
+    commandStr = `${tool} ${host}/${compositePath}`;
+    commandBox.innerText = commandStr;
+  }
+
+  function changeInput(input, button) {
+    path = input
+    portQuery = ""
+    portInput.classList.add("hidden");
+    switch(path) {
+      case "json":
+        output.innerText = jsonObj
+        break
+      case "country-iso":
+        output.innerText = data["country_iso"]
+        break
+      case "port":
+        portInput.classList.remove("hidden");
+        path = "port";
+        output.innerText = "{}";
+        let currentPort = document.querySelector("#portInput").value;
+        updatePort(currentPort);
+        break
+      case "ip":
+        output.innerText = data["ip"]
+        path = ""
+        break
+      default:
+        output.innerText = data[path]
+    }
+    setcommdStr();
+
+    // set button selected
+    if (button) {
+      allButtons = document.querySelectorAll(('button.selected'));
+      allButtons.forEach((btn) => {btn.classList.remove("selected")})
+
+      button.classList.add("selected");
+    }
+    // 动态更新按钮文本（如有需要）
+    // 可扩展：根据t对象内容动态渲染
+  }
+
+  function navigate(event) {
+    console.log("navigate", compositePath)
+    window.location = compositePath
+  }
+
+  function updatePort(value) {
+    port = value
+    portQuery = `/${port}`
+    setcommdStr()
+  }
+
+  function updateIP(value) {
+    ip = value
+    ipQuery = `?ip=${ip}`;
+    setcommdStr()
+    changeInput("ip", null)
+  }
+
+  function setLangText() {
+    document.getElementById('title').innerHTML = `${host} — ${t.Title}`;
+    document.getElementById('slogan').innerText = t.Slogan;
+    document.getElementById('ipinfo-title').innerText = t.IPInfo;
+    document.getElementById('guide-title').innerText = t.Guide;
+    document.getElementById('query-other-ip-label').childNodes[0].nodeValue = t.QueryOtherIP + ' ';
+    document.getElementById('ipInput').placeholder = t.IPToQuery;
+    document.getElementById('open-btn').innerText = t.Open;
+    document.getElementById('footer').innerHTML = `&copy; ${host} - ${t.Footer}`;
+    // 按钮
+    let btns = document.querySelectorAll('.input-buttons button');
+    if(btns.length >= 7) {
+      btns[0].innerText = t.IP;
+      btns[1].innerText = t.Country;
+      btns[2].innerText = t.CountryISO;
+      btns[3].innerText = t.City;
+      btns[4].innerText = t.ASN;
+      btns[5].innerText = 'JSON';
+      btns[6].innerText = t.Port;
+    }
+    // 表格
+    let table = document.getElementById('info-table');
+    if(table) {
+      let ths = table.querySelectorAll('th');
+      let keys = ['IP','IPDecimal','Country','CountryISO','CountryEU','RegionName','RegionCode','MetroCode','PostalCode','City','Latitude','Longitude','Timezone','ASN','ASNOrg','Hostname','UserAgent','UserAgentComment','UserAgentRaw'];
+      for(let i=0;i<ths.length&&i<keys.length;i++){
+        if(t[keys[i]]) ths[i].innerText = t[keys[i]];
+      }
+    }
+  }
+</script>
